@@ -12,13 +12,6 @@ class Board {
             [4, 5, 5, 4, 3]
         ]
 
-        /*for (let y = 0; y < height; y++) {
-            this.value[y] = []
-            for (let x = 0; x < width; x++) {
-                this.value[y][x] = 1
-            }
-        }*/
-
         for (let y = 0; y < height; y++) {
 
             let row = document.createElement('div')
@@ -37,12 +30,13 @@ class Board {
 
                 number.addEventListener("click", () => {
                     if (this.isLegal(x, y)) {
-                        let value = this.block(x, y)
+                        this.block(x, y)
 
                         if (this.isWinnable()) {
-                            console.log("you win!")
+                            console.log("you can win!")
                         } else {
-                            this.setValue(x, y, value)
+                            console.log("you would loose!")
+                            this.unblock(x, y)
                         }
                     }
                 })
@@ -52,16 +46,17 @@ class Board {
 
     isLegal(x, y) {
         return (
-            this.getValue(x - 1, y) !== 0 &&
-            this.getValue(x + 1, y) !== 0 &&
-            this.getValue(x, y - 1) !== 0 &&
-            this.getValue(x, y + 1) !== 0
+            this.getValue(x - 1, y) >= 0 &&
+            this.getValue(x + 1, y) >= 0 &&
+            this.getValue(x, y - 1) >= 0 &&
+            this.getValue(x, y + 1) >= 0
         )
     }
 
     isWinnable() {
         let winable = true
         let changed = true
+        let blocked = []
 
         while (changed) {
             changed = false
@@ -81,11 +76,13 @@ class Board {
 
                     if ( !a && b ) {
                         this.block(...pair[1])
+                        blocked.push(pair[1])
                         changed = true
                     }
 
                     if ( a && !b ) {
                         this.block(...pair[0])
+                        blocked.push(pair[0])
                         changed = true
                     }
 
@@ -94,6 +91,11 @@ class Board {
                     }
                 }
             })
+        }
+
+        console.log(blocked)
+        for (let [x, y] of blocked) {
+            this.unblock(x, y)
         }
 
         return winable
@@ -138,7 +140,7 @@ class Board {
     forEach(callback) {
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
-                if (this.getValue(x, y)) { 
+                if (this.getValue(x, y) > 0) { 
                     callback(x, y)
                 }
             }
@@ -147,10 +149,16 @@ class Board {
 
     block(x, y) {
         this.getElement(x, y).setAttribute('class', 'blocked')
-        return this.setValue(x, y, 0)
+        return this.setValue(x, y, -this.getValue(x, y))
+    }
+
+    unblock(x, y) {
+        this.getElement(x, y).setAttribute('class', 'number')
+        return this.setValue(x, y, -this.getValue(x, y))
     }
 
     getElement(x, y) {
+        console.log(x, y)
         return document.getElementById(x + "," + y)
     }
 
@@ -162,7 +170,7 @@ class Board {
 
     getValue(x, y) {
         if (x < 0 || y < 0 || x >= this.width || y >= this.height) {
-            return -1
+            return 0
         }
         return this.value[x][y]
     }
