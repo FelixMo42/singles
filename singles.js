@@ -5,8 +5,8 @@ function nums(num, len) {
 Object.defineProperty(Array.prototype, 'shuffle', {
     value: function() {
         for (let i = this.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
-            [this[i], this[j]] = [this[j], this[i]]; // swap elements
+            let j = Math.floor(Math.random() * (i + 1)); // random index
+            [this[i], this[j]] = [this[j], this[i]] // swap elements
         }
 
         return this
@@ -16,6 +16,24 @@ Object.defineProperty(Array.prototype, 'shuffle', {
 Object.defineProperty(Array.prototype, 'random', {
     value: function() {
         return this[Math.floor(Math.random() * this.length)]
+    }
+})
+
+Object.defineProperty(Array.prototype, 'onlyOne', {
+    value: function(value) {
+        let index = -1
+
+        for (let i = 0; i < this.length; i++) {
+            if (this[i] === value) {
+                if (index === -1) {
+                    index = i
+                } else {
+                    return -1
+                }
+            }
+        }
+
+        return index
     }
 })
 
@@ -31,6 +49,7 @@ class Board {
 
         document.getElementById("helpScreen_keep").addEventListener("click", () => {
             closeDisplay()
+            this.lost = true
         })
 
         document.getElementById("helpScreen_back").addEventListener("click", () => {
@@ -65,12 +84,11 @@ class Board {
                         }
 
                         let tips = this.getTips()
-                        if (!tips.winnable) {
+                        if (!tips.winnable && !this.lost) {
                             this.badMove = [x, y]
 
                             let tip = document.getElementById("helpScreen_desciption")
                             tip.innerHTML = `In ${tips.turns} turn(s) you will loose!`
-                            console.log( `In ${tips.turns} turn(s) you will loose!` )
                             display("helpScreen")
                         }
                     }
@@ -85,7 +103,7 @@ class Board {
         for (let x = 0; x < this.height; x++) {
             this.value[x] = []
             for (let y = 0; y < this.width; y++) {
-                this.value[x][y] = 1
+                this.value[x][y] = 10
             }
         }
 
@@ -113,12 +131,14 @@ class Board {
             for (let y = 0; y < this.width; y++) {
                 if ( this.getValue(x, y) > 0 ) {
                     let prev = new Array(x).fill(0).map( (v, i) => this.getValue(i, y) )
-                    let value = values.pop()
-                    console.log(prev, values, value)
-                    while ( prev.includes(value) ) {
-                        values.unshift( value )
-                        value = values.pop()
+                    let value = values.filter((v) => !prev.includes(v)).pop()
+
+                    if (!value) {
+                        this.setUpGrid()
+                        return
                     }
+
+                    values.splice( values.indexOf(value), 1 )
 
                     this.setValue(x, y, value)
                 }
@@ -222,30 +242,19 @@ class Board {
                 let pairs = this.getPair(x, y)
 
                 for (let pair of pairs) {
-                    if (pair.length == 2) {
-                        let a = this.isLegal(...pair[0])
-                        let b = this.isLegal(...pair[1])
-
-                        if ( !a && b ) {
-                            this.block(...pair[1])
-                            blocked.push(pair[1])
+                    if (pair.length > 1) {
+                        let playable = pair.map(([x, y]) => this.isLegal(x,y))
+                        
+                        let index = playable.onlyOne(true)
+                        if (index !== -1) {
+                            this.block(...pair[index])
+                            blocked.push(pair[index])
                             changed = true
 
                             return
                         }
 
-                        if ( a && !b ) {
-                            this.block(...pair[0])
-                            blocked.push(pair[0])
-                            changed = true
-
-                            return
-                        }
-
-                        if ( !a && !b ) {
-                            this.getElement( ...pair[0] ).setAttribute("style", "open")
-                            this.getElement( ...pair[1] ).setAttribute("style", "open")
-
+                        if (playable.indexOf(true) === -1) {
                             if (!fails.some((fail) => fail.x !== x || fail.y !== y)) {
                                 fails.push({
                                     x: x,
@@ -310,12 +319,16 @@ class Board {
     }
 
     block(x, y) {
-        //this.getElement(x, y).setAttribute('class', 'blocked')
+        if (this.getElement(x, y)) {
+            this.getElement(x, y).setAttribute('class', 'blocked')
+        }
         return this.setValue(x, y, -this.getValue(x, y))
     }
 
     unblock(x, y) {
-        //this.getElement(x, y).setAttribute('class', 'number')
+        if (this.getElement(x, y)) {
+            this.getElement(x, y).setAttribute('class', 'number')
+        }
         return this.setValue(x, y, -this.getValue(x, y))
     }
 
