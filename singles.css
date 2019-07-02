@@ -1,7 +1,7 @@
 /* board */
 
 #board {
-    padding: 50px 0px;
+    padding: 0px;
     display: table;
     margin: auto;
 }
@@ -67,4 +67,19 @@
 #helpScreen button {
     border-radius: 25px;
     font-size: 100%
+}
+
+/* rules */
+
+#rules {
+    background-color: var(--theme-content);
+    border-radius: 20px;
+    padding: 20px;
+    width: 1000px;
+    min-width: 500px;
+    margin: 50px auto;
+}
+
+#rules p {
+    margin-top: 10px;
 }

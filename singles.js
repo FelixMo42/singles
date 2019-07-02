@@ -55,7 +55,6 @@ class Board {
         document.getElementById("helpScreen_back").addEventListener("click", () => {
             closeDisplay()
             this.unblock( ...this.badMove )
-            this.getElement( ...this.badMove ).setAttribute('class', 'number')
         })
 
         for (let y = 0; y < height; y++) {
@@ -77,7 +76,6 @@ class Board {
                 number.addEventListener("click", () => {
                     if (this.isLegal(x, y)) {
                         this.block(x, y)
-                        this.getElement(x, y).setAttribute('class', 'blocked')
 
                         if (this.isWin()) {
                             display("winScreen")
@@ -89,6 +87,7 @@ class Board {
 
                             let tip = document.getElementById("helpScreen_desciption")
                             tip.innerHTML = `In ${tips.turns} turn(s) you will loose!`
+
                             display("helpScreen")
                         }
                     }
