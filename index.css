@@ -1,0 +1,87 @@
+:root {
+    --theme-bg-color: gray;/*#212121;*/
+    --theme-content: #303030;
+
+    --theme-primary-text: black;/*#FFFFFFFF;*/
+    --theme-secondary-text: #FFFFFFB3;
+    --theme-disabled-text: #FFFFFF80;
+
+    --theme-spacing: 5px;
+}
+
+* {
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0px;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    background-color: var(--theme-bg-color);
+    color: var(--theme-secondary-text);
+}
+
+/* text elements */
+
+p {
+    color: var(--theme-secondary-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--theme-primary-text);
+}
+
+hr {
+    margin: var(--theme-spacing) 0px;
+}
+
+/* custome */
+
+body {
+    margin: 10px;
+}
+
+#board {
+    display: table;
+    margin: auto;
+}
+
+#board .row {
+    display: flex;
+    outline: solid black 2px;
+    outline-offset: -1px;
+}
+
+#board .open,
+#board .number,
+#board .blocked {
+    width: 100px;
+    height: 100px;
+
+    padding: 30px;
+    font-size: 40px;
+
+    outline: solid black 2px;
+    outline-offset: -1px;
+
+    vertical-align: middle;
+    text-align: center;
+}
+
+#board .number:hover {
+    outline-offset: -2px;
+}
+
+#board .blocked {
+    background-color: black;
+    color: gray;
+    /*text-indent: -9999px;*/
+}
+
+#board .open {
+    color: green;
+}
