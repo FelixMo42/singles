@@ -1,18 +1,33 @@
+function nums(num, len) {
+    return new Array(len).fill(num);
+}
+
+Object.defineProperty(Array.prototype, 'shuffle', {
+    value: function() {
+        for (let i = this.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+            [this[i], this[j]] = [this[j], this[i]]; // swap elements
+        }
+
+        return this
+    }
+})
+
+Object.defineProperty(Array.prototype, 'random', {
+    value: function() {
+        return this[Math.floor(Math.random() * this.length)]
+    }
+})
+
 class Board {
     constructor(width, height, feedback="none", id="board") {
         this.width = width
         this.height = height
         this.feedback = feedback
 
-        this.root = document.getElementById(id)
+        this.setUpGrid()
 
-        this.value = [
-            [4, 2, 1, 2, 1],
-            [2, 4, 5, 4, 1],
-            [5, 1, 1, 5, 2],
-            [5, 2, 3, 1, 3],
-            [4, 5, 5, 4, 3]
-        ]
+        this.root = document.getElementById(id)
 
         document.getElementById("helpScreen_keep").addEventListener("click", () => {
             closeDisplay()
@@ -21,6 +36,7 @@ class Board {
         document.getElementById("helpScreen_back").addEventListener("click", () => {
             closeDisplay()
             this.unblock( ...this.badMove )
+            this.getElement( ...this.badMove ).setAttribute('class', 'number')
         })
 
         for (let y = 0; y < height; y++) {
@@ -42,6 +58,7 @@ class Board {
                 number.addEventListener("click", () => {
                     if (this.isLegal(x, y)) {
                         this.block(x, y)
+                        this.getElement(x, y).setAttribute('class', 'blocked')
 
                         if (this.isWin()) {
                             display("winScreen")
@@ -58,6 +75,59 @@ class Board {
                         }
                     }
                 })
+            }
+        }
+    }
+
+    setUpGrid() {
+        this.value = []
+
+        for (let x = 0; x < this.height; x++) {
+            this.value[x] = []
+            for (let y = 0; y < this.width; y++) {
+                this.value[x][y] = 1
+            }
+        }
+
+        let maxBlocks = 7
+        let blocks = [
+            ...nums(true, maxBlocks),
+            ...nums(false, 5 * 5 - maxBlocks),
+        ].shuffle()
+
+        for (let x = 0; x < this.height; x++) {
+            for (let y = 0; y < this.width; y++) {
+                if ( blocks.pop() ) {
+                    if (!this.isLegal(x, y)) {
+                        this.setUpGrid()
+                        return
+                    }
+
+                    this.setValue(x, y, -[1, 2, 3, 4, 5].random())
+                }
+            }
+        }
+
+        for (let x = 0; x < this.height; x++) {
+            let values = [1, 2, 3, 4, 5].shuffle()
+            for (let y = 0; y < this.width; y++) {
+                if ( this.getValue(x, y) > 0 ) {
+                    let prev = new Array(x).fill(0).map( (v, i) => this.getValue(i, y) )
+                    let value = values.pop()
+                    console.log(prev, values, value)
+                    while ( prev.includes(value) ) {
+                        values.unshift( value )
+                        value = values.pop()
+                    }
+
+                    this.setValue(x, y, value)
+                }
+            }
+        }
+
+        for (let x = 0; x < this.height; x++) {
+            for (let y = 0; y < this.width; y++) {
+                this.setValue(x, y, Math.abs(this.getValue(x, y)))
             }
         }
     }
@@ -240,12 +310,12 @@ class Board {
     }
 
     block(x, y) {
-        this.getElement(x, y).setAttribute('class', 'blocked')
+        //this.getElement(x, y).setAttribute('class', 'blocked')
         return this.setValue(x, y, -this.getValue(x, y))
     }
 
     unblock(x, y) {
-        this.getElement(x, y).setAttribute('class', 'number')
+        //this.getElement(x, y).setAttribute('class', 'number')
         return this.setValue(x, y, -this.getValue(x, y))
     }
 

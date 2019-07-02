@@ -59,6 +59,11 @@
     text-align: center;
 }
 
+#helpScreen p {
+    font-size: 150%;
+    margin-bottom: 10px;
+}
+
 #helpScreen button {
     border-radius: 25px;
     font-size: 100%
