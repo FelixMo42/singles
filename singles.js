@@ -47,9 +47,14 @@ class Board {
                             display("winScreen")
                         }
 
-                        if (!this.isWinnable()) {
+                        let tips = this.getTips()
+                        if (!tips.winnable) {
                             this.badMove = [x, y]
-                            //display("helpScreen")
+
+                            let tip = document.getElementById("helpScreen_desciption")
+                            tip.innerHTML = `In ${tips.turns} turn(s) you will loose!`
+                            console.log( `In ${tips.turns} turn(s) you will loose!` )
+                            display("helpScreen")
                         }
                     }
                 })
@@ -65,14 +70,12 @@ class Board {
             this.getValue(x, y - 1) < 0 ||
             this.getValue(x, y + 1) < 0
         ) {
-            //console.log("place next")
             return false
         }
 
         if (
             this.willSection(x, y)
         ) {
-            //console.log("will section")
             return false
         }
 
@@ -137,9 +140,9 @@ class Board {
         return win
     }
 
-    isWinnable() {
+    getTips() {
         let changed = true
-        let winable = true
+        let fails = []
         let blocked = []
 
         while (changed) {
@@ -172,7 +175,13 @@ class Board {
                         if ( !a && !b ) {
                             this.getElement( ...pair[0] ).setAttribute("style", "open")
                             this.getElement( ...pair[1] ).setAttribute("style", "open")
-                            winable = false
+
+                            if (!fails.some((fail) => fail.x !== x || fail.y !== y)) {
+                                fails.push({
+                                    x: x,
+                                    y: y
+                                })
+                            }
                         }
                     }
                 }
@@ -183,7 +192,17 @@ class Board {
             this.unblock(x, y)
         }
 
-        return winable
+        console.log({
+            winnable: fails.length === 0,
+            turns: blocked.length,
+            tip: fails
+        })
+
+        return {
+            winnable: fails.length === 0,
+            turns: blocked.length,
+            fails: fails
+        }
     }
 
     isAlone(x, y) {
