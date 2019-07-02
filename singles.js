@@ -153,11 +153,7 @@ class Board {
                         let a = this.isLegal(...pair[0])
                         let b = this.isLegal(...pair[1])
 
-                        console.log( ...pair[0], a, "", ...pair[1], b )
-
                         if ( !a && b ) {
-                            console.log("play b")
-
                             this.block(...pair[1])
                             blocked.push(pair[1])
                             changed = true
@@ -166,7 +162,6 @@ class Board {
                         }
 
                         if ( a && !b ) {
-                            console.log("play a")
                             this.block(...pair[0])
                             blocked.push(pair[0])
                             changed = true
@@ -185,7 +180,7 @@ class Board {
         }
 
         for (let [x, y] of blocked) {
-            //this.unblock(x, y)
+            this.unblock(x, y)
         }
 
         return winable
