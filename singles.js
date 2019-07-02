@@ -1,9 +1,11 @@
 class Board {
-    constructor(width, height, id="board") {
+    constructor(width, height, feedback="none", id="board") {
         this.width = width
         this.height = height
+        this.feedback = feedback
 
         this.root = document.getElementById(id)
+
         this.value = [
             [4, 2, 1, 2, 1],
             [2, 4, 5, 4, 1],
@@ -11,6 +13,15 @@ class Board {
             [5, 2, 3, 1, 3],
             [4, 5, 5, 4, 3]
         ]
+
+        document.getElementById("helpScreen_keep").addEventListener("click", () => {
+            closeDisplay()
+        })
+
+        document.getElementById("helpScreen_back").addEventListener("click", () => {
+            closeDisplay()
+            this.unblock( ...this.badMove )
+        })
 
         for (let y = 0; y < height; y++) {
 
@@ -32,11 +43,11 @@ class Board {
                     if (this.isLegal(x, y)) {
                         this.block(x, y)
 
-                        if (this.isWinnable()) {
-                            console.log("you can win!")
-                        } else {
-                            console.log("you would loose!")
-                            this.unblock(x, y)
+                        if (this.isWin()) {
+                            display("winScreen")
+                        } if (!this.isWinnable()) {
+                            this.badMove = [x, y]
+                            display("helpScreen")
                         }
                     }
                 })
@@ -46,11 +57,28 @@ class Board {
 
     isLegal(x, y) {
         return (
+            this.getValue(x, y) >= 0 &&
             this.getValue(x - 1, y) >= 0 &&
             this.getValue(x + 1, y) >= 0 &&
             this.getValue(x, y - 1) >= 0 &&
             this.getValue(x, y + 1) >= 0
         )
+    }
+
+    isWin() {
+        let win = true
+
+        this.forEach((x, y) => {
+            let pairs = this.getPair(x, y)
+            
+            pairs.forEach( (pair) => {
+                if (pair.length > 1) {
+                    win = false
+                }
+            } )
+        })
+
+        return win
     }
 
     isWinnable() {
@@ -62,38 +90,33 @@ class Board {
             changed = false
 
             this.forEach((x, y) => {
-                let pair = this.getPair(x, y)
+                let pairs = this.getPair(x, y)
 
-                if ( !pair ) {
-                    document.getElementById(x + "," + y).setAttribute('class', 'open')
-                }
+                pairs.forEach( (pair) => {
+                    if (pair.length == 2) {
+                        let a = this.isLegal(...pair[0])
+                        let b = this.isLegal(...pair[1])
 
-                pair.push([x, y])
+                        if ( !a && b ) {
+                            this.block(...pair[1])
+                            blocked.push(pair[1])
+                            changed = true
+                        }
 
-                if (pair.length == 2) {
-                    let a = this.isLegal(...pair[0])
-                    let b = this.isLegal(...pair[1])
+                        if ( a && !b ) {
+                            this.block(...pair[0])
+                            blocked.push(pair[0])
+                            changed = true
+                        }
 
-                    if ( !a && b ) {
-                        this.block(...pair[1])
-                        blocked.push(pair[1])
-                        changed = true
+                        if ( !a && !b ) {
+                            winable = false
+                        }
                     }
-
-                    if ( a && !b ) {
-                        this.block(...pair[0])
-                        blocked.push(pair[0])
-                        changed = true
-                    }
-
-                    if ( !a && !b ) {
-                        winable = false
-                    }
-                }
+                })
             })
         }
 
-        console.log(blocked)
         for (let [x, y] of blocked) {
             this.unblock(x, y)
         }
@@ -105,36 +128,24 @@ class Board {
         return this.getPair(x, y) === false
     }
 
-    getPairs() {
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
-                let pair = this.getPair(x, y)
-                if (pair) {
-                    return [
-                        { x: x, y: y },
-                        { x: pair[0], y: pair[1] }
-                    ]
-                }
-            }
-        }
-    }
-
-    getPair(X, Y) {
-        let value = this.getValue(X, Y)
+    getPair(x, y) {
+        let value = this.getValue(x, y)
+        let row = []
+        let column = []
 
         for (let x = 0; x < this.width; x++) {
-            if (x !== X && this.getValue(x, Y) === value) {
-                return [[x, Y]]
+            if (this.getValue(x, y) === value) {
+                row.push([x, y])
             }
         }
 
         for (let y = 0; y < this.height; y++) {
-            if (y !== Y && this.getValue(X, y) === value) {
-                return [[X, y]]
+            if (this.getValue(x, y) === value) {
+                column.push([x, y])
             }
         }
 
-        return []
+        return [row, column]
     }
 
     forEach(callback) {
@@ -158,7 +169,6 @@ class Board {
     }
 
     getElement(x, y) {
-        console.log(x, y)
         return document.getElementById(x + "," + y)
     }
 

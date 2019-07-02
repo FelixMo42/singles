@@ -1,11 +1,28 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link href="index.css" rel="stylesheet" type="text/css" />
+        <link href="root.css" rel="stylesheet" type="text/css" />
+        <link href="shade.css" rel="stylesheet" type="text/css" />
+        <link href="singles.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         <div id="board"></div>
 
-        <script src="index.js"></script>
+        <div id="shade" hidden>
+            <div id="winScreen" hidden>
+                <h1>Contragualtions Youve Won! :)</h1>
+            </div>
+
+            <div id="helpScreen" hidden>
+                <h1>Thats a bad move.</h1>
+
+                <button id="helpScreen_keep">I like my move</button>
+                <button id="helpScreen_back">Take it back</button>
+            </div>
+        </div>
+
+        <!-- scripts -->
+        <script src="shade.js"></script>
+        <script src="singles.js"></script>
     </body>
 </html>

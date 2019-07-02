@@ -1,0 +1,40 @@
+:root {
+    --theme-bg-color: gray;/*#212121;*/
+    --theme-content: #303030;
+
+    --theme-primary-text: #FFFFFFFF;
+    --theme-secondary-text: #FFFFFFB3;
+    --theme-disabled-text: #FFFFFF80;
+
+    --theme-spacing: 5px;
+}
+
+* {
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0px;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    background-color: var(--theme-bg-color);
+    color: var(--theme-secondary-text);
+}
+
+/* text elements */
+
+p {
+    color: var(--theme-secondary-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--theme-primary-text);
+}
+
+hr {
+    margin: var(--theme-spacing) 0px;
+}
