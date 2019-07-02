@@ -56,13 +56,67 @@ class Board {
     }
 
     isLegal(x, y) {
-        return (
-            this.getValue(x, y) >= 0 &&
-            this.getValue(x - 1, y) >= 0 &&
-            this.getValue(x + 1, y) >= 0 &&
-            this.getValue(x, y - 1) >= 0 &&
-            this.getValue(x, y + 1) >= 0
-        )
+        if (
+            this.getValue(x, y) < 0 ||
+            this.getValue(x - 1, y) < 0 ||
+            this.getValue(x + 1, y) < 0 ||
+            this.getValue(x, y - 1) < 0 ||
+            this.getValue(x, y + 1) < 0
+        ) {
+            console.log("place next")
+            return false
+        }
+
+        if (
+            this.willSection(x, y)
+        ) {
+            console.log("will section")
+            return false
+        }
+
+        return true
+    }
+
+    willSection(x, y) {
+        this.block(x, y)
+
+        // get total number of unblocked numbers
+        let total = 0
+        this.forEach( () => {
+            total += 1
+        } )
+
+        let sectioned = [
+            this.getSection(x - 1, y).length,
+            this.getSection(x + 1, y).length,
+            this.getSection(x, y - 1).length,
+            this.getSection(x, y + 1).length
+        ]
+
+        this.unblock(x, y)
+
+        return !sectioned.includes(total)
+    }
+
+    getSection(x, y, section=[]) {
+        let stringForm = this.stringify(x, y)
+
+        if (this.getValue(x, y) <= 0 || section.includes(stringForm)) {
+            return section
+        }
+        
+        section.push(stringForm)
+        
+        section = this.getSection(x - 1, y, section)
+        section = this.getSection(x + 1, y, section)
+        section = this.getSection(x, y - 1, section)
+        section = this.getSection(x, y + 1, section)
+
+        return section
+    }
+
+    stringify(x, y) {
+        return x + "," + y
     }
 
     isWin() {
@@ -82,7 +136,6 @@ class Board {
     }
 
     isWinnable() {
-        let winable = true
         let changed = true
         let blocked = []
 
@@ -110,12 +163,17 @@ class Board {
                         }
 
                         if ( !a && !b ) {
-                            winable = false
+                            console.log( pair, a, b )
+                            this.getElement( ...pair[0] ).setAttribute("style", "open")
+                            this.getElement( ...pair[1] ).setAttribute("style", "open")
+                            //winable = false
                         }
                     }
                 })
             })
         }
+
+        let winable = this.isWin()
 
         for (let [x, y] of blocked) {
             this.unblock(x, y)

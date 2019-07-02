@@ -58,3 +58,8 @@
 #winScreen h1 {
     text-align: center;
 }
+
+#helpScreen button {
+    border-radius: 25px;
+    font-size: 100%
+}
