@@ -1,21 +1,21 @@
-# The Expirement
+# The Experiment
 
-When a player would make a move that would make it immposible for them to win or cause them to loose the computer will tell them that they are making bad move and give them an oppertunity to not make it along with an explenation. The type of explination will be randomly assigned from the fallowing list:
+When a player would make a move that would make it impossible for them to win or cause them to lose the computer will tell them that they are making a bad move and give them an opportunity to not make it along with an explanation. The type of explanation will be randomly assigned from the following list:
 
-* **simple:** stop them and give them a simple and true explanation of why their move makes it impossible to win or would cause them to loose.
-* **complex:** stop them and give them a complex and true explanation of why their move makes it impossible to win or would cause them to loose.
-* **plasuble lie:** stop them and give them a simple but false plausible explanation of why their move makes it impossible to win or would cause them to loose.
-* **absurd lie:** stop them and give them a simple but absurd explanation of why their move makes it impossible to win or would cause them to loose.
+* **simple:** stop them and give them a simple and true explanation of why their move makes it impossible to win or would cause them to lose.
+* **complex:** stop them and give them a complex and true explanation of why their move makes it impossible to win or would cause them to lose.
+* **plasuble lie:** stop them and give them a simple but false plausible explanation of why their move makes it impossible to win or would cause them to lose.
+* **absurd lie:** stop them and give them a simple but absurd explanation of why their move makes it impossible to win or would cause them to lose.
 
-This is testing how much people trust computers and how much the nature of the explenation given by the computer factors into it.
+This is testing how much people trust computers and how much the nature of the explanation given by the computer factors into it.
 
 # Hypothses
 
-**H1:** Most participants will not check to see if the explenation given is true when the explenation seems plasuble.
+**H1:** Most participants will not check to see if the explanation given is true when the explanation seems plausible.
 
-**H2:** Participants will be less likeley to take the advise when it seem unlikly to be true.
+**H2:** Participants will be less likely to take the advice when it seems unlikely to be true.
 
-**H3:** Participants will be equally likely to exept the explanation when its simple as when its complecated.
+**H3:** Participants will be equally likely to accept the explanation when it's simple as when it's complicated.
 
 # The Game
 
