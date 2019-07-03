@@ -20,9 +20,12 @@ html {
 }
 
 body {
+    min-width: 100%;
     min-height: 100%;
+    position: absolute;
     background-color: var(--theme-bg-color);
     color: var(--theme-secondary-text);
+    overflow: auto;
 }
 
 /* text elements */
