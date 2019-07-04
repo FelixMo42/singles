@@ -2,6 +2,13 @@ function nums(num, len) {
     return new Array(len).fill(num);
 }
 
+Math.randomInt = function(min, max) {
+    if (!max) {
+        return Math.randomInt(0, min)
+    }
+    return Math.floor(Math.random() * Math.floor(max - min)) + max;
+}
+
 Object.defineProperty(Array.prototype, 'shuffle', {
     value: function() {
         for (let i = this.length - 1; i > 0; i--) {
@@ -37,15 +44,20 @@ Object.defineProperty(Array.prototype, 'onlyOne', {
     }
 })
 
+
+
 class Board {
-    constructor(width, height, feedback="none", id="board") {
+    constructor(width, height, id=Math.randomInt(4294967296), feedback="none") {
+        Math.seedrandom(id)
+
+        this.id = id
         this.width = width
         this.height = height
         this.feedback = feedback
 
         this.setUpGrid()
 
-        this.root = document.getElementById(id)
+        this.root = document.getElementById("board")
 
         document.getElementById("helpScreen_keep").addEventListener("click", () => {
             closeDisplay()
@@ -349,4 +361,4 @@ class Board {
     }
 }
 
-const board = new Board(5, 5)
+const board = new Board(5, 5, window.location.search)

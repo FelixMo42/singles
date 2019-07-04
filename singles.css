@@ -4,6 +4,7 @@
     padding: 0px;
     display: table;
     margin: auto;
+    margin-bottom: 100px;
 }
 
 #board .row {
@@ -51,7 +52,7 @@
 
     padding: 10px;
 
-    margin: 100px 10%;
+    margin: 400px 10%;
 }
 
 #helpScreen,
@@ -114,6 +115,5 @@
 }
 
 #rules_images img {
-    display: inline;
     height: 300px;
 }
