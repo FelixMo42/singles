@@ -83,3 +83,37 @@
 #rules p {
     margin-top: 10px;
 }
+
+#rules div {
+    overflow: auto;
+    height: auto !important;
+}
+
+#rules_images {
+    display: flex;
+    flex-direction: row;
+}
+
+#rules_images div {
+    flex: 1;
+}
+
+#rules_images_left,
+#rules_images_right {
+    padding: 5px;
+    margin-right: 10px;
+}
+
+#rules_images_left {
+    border-left: solid black;
+}
+
+#rules_images_right {
+    text-align: right;
+    border-right: solid black;
+}
+
+#rules_images img {
+    display: inline;
+    height: 300px;
+}

@@ -7,7 +7,7 @@ When a player would make a move that would make it impossible for them to win or
 * **plasuble lie:** stop them and give them a simple but false plausible explanation of why their move makes it impossible to win or would cause them to lose.
 * **absurd lie:** stop them and give them a simple but absurd explanation of why their move makes it impossible to win or would cause them to lose.
 
-This is testing how much people trust computers and how much the nature of the explanation given by the computer factors into it.
+This is testing how much people trust computers and how much the nature of the explanation given by the computer factors into there willingness to follow a computers advice.
 
 # Hypothses
 
