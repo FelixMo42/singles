@@ -1,53 +1,5 @@
-function nums(num, len) {
-    return new Array(len).fill(num);
-}
-
-Math.randomInt = function(min, max) {
-    if (!max) {
-        return Math.randomInt(0, min)
-    }
-    return Math.floor(Math.random() * Math.floor(max - min)) + max;
-}
-
-Object.defineProperty(Array.prototype, 'shuffle', {
-    value: function() {
-        for (let i = this.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1)); // random index
-            [this[i], this[j]] = [this[j], this[i]] // swap elements
-        }
-
-        return this
-    }
-})
-
-Object.defineProperty(Array.prototype, 'random', {
-    value: function() {
-        return this[Math.floor(Math.random() * this.length)]
-    }
-})
-
-Object.defineProperty(Array.prototype, 'onlyOne', {
-    value: function(value) {
-        let index = -1
-
-        for (let i = 0; i < this.length; i++) {
-            if (this[i] === value) {
-                if (index === -1) {
-                    index = i
-                } else {
-                    return -1
-                }
-            }
-        }
-
-        return index
-    }
-})
-
-
-
 class Board {
-    constructor(width, height, id=Math.randomInt(4294967296), feedback="none") {
+    constructor(width, height, id=Math.randomInt(4294967296), feedback=0) {
         Math.seedrandom(id)
 
         this.id = id
@@ -97,14 +49,41 @@ class Board {
                         if (!tips.winnable && !this.lost) {
                             this.badMove = [x, y]
 
-                            let tip = document.getElementById("helpScreen_desciption")
-                            tip.innerHTML = `In ${tips.turns} turn(s) you will loose!`
+                            this.setFeedback(tips)                         
 
                             display("helpScreen")
                         }
                     }
                 })
             }
+        }
+    }
+
+    setFeedback(tips) {
+        let tip = document.getElementById("helpScreen_desciption")
+
+        console.log(this.feedback)
+
+        switch (this.feedback) {
+            case 0: // simple
+                let pairs = tips.fails[0].pair
+                let number = this.getValue(...pairs[0])
+                let direction = pairs[0][0] === pairs[0][1] ? "row" : "column"
+                let over = direction === "row" ? pairs[0][1] : pairs[0][0] + 1
+                tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
+                break
+
+            case 1: // complex
+                tip.innerHTML = ``
+                break
+
+            case 2: // plasuble lie
+                tip.innerHTML = `In ${tips.turns} turn(s) you will be forced to make an illigal move.`
+                break
+
+            case 3: // absurd lie
+                tip.innerHTML = `If you make this move youll set off a bomb.`
+                break
         }
     }
 
@@ -163,7 +142,7 @@ class Board {
         }
     }
 
-    isLegal(x, y) {
+    isLegal(x, y, reason=false) {
         if (
             this.getValue(x, y) < 0 ||
             this.getValue(x - 1, y) < 0 ||
@@ -171,16 +150,16 @@ class Board {
             this.getValue(x, y - 1) < 0 ||
             this.getValue(x, y + 1) < 0
         ) {
-            return false
+            return reason ? "adjacent" : false
         }
 
         if (
             this.willSection(x, y)
         ) {
-            return false
+            return reason ? "section" : false
         }
 
-        return true
+        return reason ? "" : true
     }
 
     willSection(x, y) {
@@ -241,7 +220,19 @@ class Board {
         return win
     }
 
-    getTips() {
+    isLose() {
+        let lose = true
+
+        this.forEach((x, y) => {
+            if (this.isLegal(x, y)) {
+                lose = false
+            }
+        })
+
+        return lose
+    }
+
+    getTips(x, y) {
         let changed = true
         let fails = []
         let blocked = []
@@ -268,8 +259,8 @@ class Board {
                         if (playable.indexOf(true) === -1) {
                             if (!fails.some((fail) => fail.x !== x || fail.y !== y)) {
                                 fails.push({
-                                    x: x,
-                                    y: y
+                                    pair: pair,
+                                    fails: pair.map(([x, y]) => this.isLegal(x, y, true))
                                 })
                             }
                         }
@@ -282,11 +273,7 @@ class Board {
             this.unblock(x, y)
         }
 
-        console.log({
-            winnable: fails.length === 0,
-            turns: blocked.length,
-            tip: fails
-        })
+        console.log(fails)
 
         return {
             winnable: fails.length === 0,
@@ -361,4 +348,7 @@ class Board {
     }
 }
 
-const board = new Board(5, 5, window.location.search)
+
+let params = new URLSearchParams(window.location.search)
+
+const board = new Board(5, 5, params.getInt('id'), params.getInt('feed'))
