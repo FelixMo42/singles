@@ -1,11 +1,11 @@
 class Board {
-    constructor(width, height, id=Math.randomInt(4294967296), feedback=0) {
+    constructor(width, height, id=Math.randomInt(4294967296)) {
         Math.seedrandom(id)
 
         this.id = id
         this.width = width
         this.height = height
-        this.feedback = feedback
+        this.feedback = Math.randomInt(3)
 
         this.setUpGrid()
 
@@ -62,29 +62,47 @@ class Board {
     setFeedback(tips) {
         let tip = document.getElementById("helpScreen_desciption")
 
-        console.log(this.feedback)
-
-        switch (this.feedback) {
-            case 0: // simple
-                let pairs = tips.fails[0].pair
-                let number = this.getValue(...pairs[0])
-                let direction = pairs[0][0] === pairs[0][1] ? "row" : "column"
-                let over = direction === "row" ? pairs[0][1] : pairs[0][0] + 1
-                tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
-                break
-
-            case 1: // complex
-                tip.innerHTML = ``
-                break
-
-            case 2: // plasuble lie
-                tip.innerHTML = `In ${tips.turns} turn(s) you will be forced to make an illigal move.`
-                break
-
-            case 3: // absurd lie
-                tip.innerHTML = `If you make this move youll set off a bomb.`
-                break
+        if (this.feedback === 0) { // simple
+            let pairs = tips.fails[0].pair
+            let number = this.getValue(...pairs[0])
+            let direction = pairs[0][0] === pairs[0][1] ? "row" : "column"
+            let over = direction === "row" ? pairs[0][1] : pairs[0][0] + 1
+            tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
         }
+
+        if (this.feedback === 1) { // complex
+           tip.innerHTML = `TODO`
+        }
+
+        if (this.feedback === 2) { // plasuble lie
+            let pairs = tips.fails[0].pair
+            let number = this.getValue(...pairs[0])
+            let direction = pairs[0][0] === pairs[0][1] ? "row" : "column"
+            let over = direction === "row" ? pairs[0][1] : pairs[0][0] + 1
+            tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
+        }
+
+        if (this.feedback === 3) { // absurd lie
+            let dir = Math.randomInt(1)
+            
+            let x = Math.randomInt(4)
+            let y = Math.randomInt(4)
+
+            while ( this.getPair(x, y)[dir].length === 1 ) {
+                dir = Math.randomInt(1)
+            
+                x = Math.randomInt(4)
+                y = Math.randomInt(4)
+            }
+
+            let number = this.getValue(x, y)
+            let over = (dir === 0 ? y : x) + 1
+            let direction = ["row", "column"][dir]
+
+            tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
+        }
+
+        return tip.innerHTML
     }
 
     setUpGrid() {
@@ -265,6 +283,33 @@ class Board {
                             }
                         }
                     }
+                    if (pair.length > 2) {
+                        let group = []
+
+                        if (pair[0][0] === pair[0][0]) {
+                            let p = pair[0][0]
+
+                            for (let [x, y] in pair) {
+                                if (p + 1 === y) {
+                                    group.push([x, y])
+                                } else {
+
+                                }
+
+                                p = y
+                            }
+                        } else {
+                            let p = pair[0][1]
+
+                            for (let [x, y] in pair) {
+                                if (p + 1 === x) {
+                                    group.push([x, y])
+                                }
+
+                                p = x
+                            }
+                        }
+                    }
                 }
             })
         }
@@ -279,6 +324,17 @@ class Board {
             winnable: fails.length === 0,
             turns: blocked.length,
             fails: fails
+        }
+    }
+
+    checkGroup(group) {
+        let playable = group.map(([x, y]) => this.isLegal(x,y))
+        
+        let playableIndex = playable.onlyOne(true)
+        let unplayable = playable.indexOf(true) !== -1
+
+        if (index !== -1) {
+            return 
         }
     }
 
@@ -351,4 +407,4 @@ class Board {
 
 let params = new URLSearchParams(window.location.search)
 
-const board = new Board(5, 5, params.getInt('id'), params.getInt('feed'))
+const board = new Board(5, 5, params.getInt('id'))

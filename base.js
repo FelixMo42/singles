@@ -5,10 +5,10 @@ function nums(num, len) {
 // extend Math
 
 Math.randomInt = function(min, max) {
-    if (!max) {
+    if (max === undefined) {
         return Math.randomInt(0, min)
     }
-    return Math.floor(Math.random() * Math.floor(max - min)) + max;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // extend Array
