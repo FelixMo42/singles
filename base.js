@@ -54,6 +54,14 @@ Object.defineProperty(Array.prototype, 'equal', {
     }
 })
 
+
+Object.defineProperty(Array.prototype, 'dist', {
+    value: function(x, y) {
+        return (this[0] - x) ** 2 + (this[1] - y) ** 2
+    }
+})
+
+
 // extend URLSearchParams
 
 Object.defineProperty(URLSearchParams.prototype, "getInt", {

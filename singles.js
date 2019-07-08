@@ -52,7 +52,7 @@ class Board {
                 return
             }
 
-            let tips = this.getTips()
+            let tips = this.getTips(x, y)
             if (!tips.winnable && !this.lost) {
                 this.badMove = [x, y]
 
@@ -276,26 +276,35 @@ class Board {
         return lose
     }
 
-    getTips() {
+    getTips(x, y) {
         let changed = true
         let fails = []
         let blocked = []
+
+        let nums = []
+        for (let x = 0; x < this.width; x++) {
+            for (let y = 0; y < this.height; y++) {
+                nums.push([x, y])
+            }
+        }
+
+        if (x !== undefined && y !== undefined) {
+            nums.sort( (a, b) => a.dist(x, y) - b.dist(x, y) )
+        }
 
         while (changed) {
             changed = false
 
             outher:
-            for (let x = 0; x < this.width; x++) {
-                for (let y = 0; y < this.height; y++) {
-                    if (this.getValue(x, y) < 0) { continue }
-                    let pairs = this.getPair(x, y)
+            for (let [x, y] of nums) {
+                if (this.getValue(x, y) < 0) { continue }
+                let pairs = this.getPair(x, y)
 
-                    for (let pair of pairs) {
-                        if (pair.length > 1 && this.playGroup(pair, blocked, fails)) {
-                            changed = true
+                for (let pair of pairs) {
+                    if (pair.length > 1 && this.playGroup(pair, blocked, fails)) {
+                        changed = true
 
-                            break outher
-                        }
+                        break outher
                     }
                 }
             }
