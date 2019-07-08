@@ -74,12 +74,14 @@ class Board {
     setFeedback(tips) {
         let tip = document.getElementById("helpScreen_desciption")
 
+        this.feedback = 0
+
         if (this.feedback === 0) { // simple
             let pairs = tips.fails[0].pair
             let number = this.getValue(...pairs[0])
-            let direction = pairs[0][0] === pairs[0][1] ? "row" : "column"
-            let over = direction === "row" ? pairs[0][1] : pairs[0][0] + 1
-            tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
+            let direction = pairs[0][0] === pairs[1][0] ? "column" : "row"
+            let over = (direction === "row" ? pairs[0][1] : pairs[0][0]) + 1
+            tip.innerHTML = `You will not be able to cover the ${number}s in ${direction} ${over}.`
         }
 
         if (this.feedback === 1) { // complex
@@ -103,7 +105,7 @@ class Board {
             let over = (dir === 0 ? y : x) + 1
             let direction = ["row", "column"][dir]
 
-            tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
+            tip.innerHTML = `You will not be able to cover the ${number}s in ${direction} ${over}.`
         }
 
         if (this.feedback === 3) { // absurd lie
@@ -123,7 +125,7 @@ class Board {
             let over = (dir === 0 ? y : x) + 1
             let direction = ["row", "column"][dir]
 
-            tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
+            tip.innerHTML = `You will not be able to cover the ${number}s in ${direction} ${over}.`
         }
 
         return tip.innerHTML
@@ -279,61 +281,30 @@ class Board {
         let fails = []
         let blocked = []
 
-        let block = (x, y) => {
-            this.block(x, y)
-            blocked.push([x, y])
-            changed = true
-        }
-
         while (changed) {
             changed = false
 
-            this.forEach((x, y) => {
-                let pairs = this.getPair(x, y)
+            outher:
+            for (let x = 0; x < this.width; x++) {
+                for (let y = 0; y < this.height; y++) {
+                    if (this.getValue(x, y) < 0) { continue }
+                    let pairs = this.getPair(x, y)
 
-                for (let pair of pairs) {
-                    if (pair.length > 1 && this.playGroup(pair, blocked, fails)) {
-                        changed = true
+                    for (let pair of pairs) {
+                        if (pair.length > 1 && this.playGroup(pair, blocked, fails)) {
+                            changed = true
 
-                        return
+                            break outher
+                        }
                     }
-                    
-                    /*if (pair.length > 2) {
-                        let prevX = pair[0][0] - 1
-                        let prevY = pair[0][1] - 1
-                        let group = []
-                        let groups = []
-
-                        for (let [x, y] of pair) {
-                            if (x !== prevX + 1 && y !== prevY + 1) {
-                                groups.push(group)
-                                group = []
-                            }
-
-                            group.push([x, y])
-
-                            prevX = x
-                            prevY = y
-                        }
-
-                        groups.push(group)
-                        groups.sort( (group) => group.length )
-                        
-                        if (groups[0].length === 3) {
-                            block( ...groups[0][0] )
-                            block( ...groups[0][2] )
-                        }
-
-                        if (groups[0].length === 2) {
-                            block( ...groups[1][0] )
-                        }
-                    }*/
                 }
-            })
+            }
         }
 
-        for (let [x, y] of blocked) {
-            //this.unblock(x, y)
+        if (!params.has('debug')) {
+            for (let [x, y] of blocked) {
+                this.unblock(x, y)
+            }
         }
 
         return {
@@ -359,7 +330,7 @@ class Board {
         if (unplayable) {
             //if (!fails.some((fail) => fail.x !== x || fail.y !== y)) {
                 fails.push({
-                    pair: group[0],
+                    pair: group,
                     fails: group.map(([x, y]) => this.isLegal(x, y, true))
                 })
             //}
@@ -395,7 +366,7 @@ class Board {
     forEach(callback) {
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
-                if (this.getValue(x, y) > 0) { 
+                if (this.getValue(x, y) > 0) {
                     callback(x, y)
                 }
             }
