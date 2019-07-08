@@ -22,43 +22,51 @@ class Board {
         })
 
         for (let y = 0; y < height; y++) {
-
             let row = document.createElement('div')
             row.setAttribute('class', 'row')
-            this.root.appendChild(row);
 
             for (let x = 0; x < width; x++) {
-
                 let number = document.createElement('div')
                 number.setAttribute('class', 'number')
                 number.setAttribute("id", x + "," + y)
-                row.appendChild(number)
 
                 let text = document.createTextNode( this.getValue(x, y) )
                 number.appendChild(text)
 
-                number.addEventListener("click", () => {
-                    if (this.isLegal(x, y)) {
-                        this.block(x, y)
+                number.addEventListener("click", () => { this.play(x, y) })           
 
-                        if (this.isWin()) {
-                            display("winScreen")
-                        }
+                row.appendChild(number)
+            }
 
-                        if (this.isLose()) {
-                            display("loseScreen")
-                        }
+            this.root.appendChild(row);
+        }
+    }
 
-                        let tips = this.getTips()
-                        if (!tips.winnable && !this.lost) {
-                            this.badMove = [x, y]
+    play(x, y) {
+        if (this.isLegal(x, y)) {
+            this.block(x, y)
 
-                            this.setFeedback(tips)                         
+            if (this.isWin()) {
+                display("winScreen")
 
-                            display("helpScreen")
-                        }
-                    }
-                })
+                return
+            }
+
+            let tips = this.getTips()
+            if (!tips.winnable && !this.lost) {
+                this.badMove = [x, y]
+
+                this.setFeedback(tips)                         
+
+                display("helpScreen")
+
+                return
+            }
+
+            if (this.isLose()) {
+                display("loseScreen")
+
+                return
             }
         }
     }
@@ -266,10 +274,16 @@ class Board {
         return lose
     }
 
-    getTips(x, y) {
+    getTips() {
         let changed = true
         let fails = []
         let blocked = []
+
+        let block = (x, y) => {
+            this.block(x, y)
+            blocked.push([x, y])
+            changed = true
+        }
 
         while (changed) {
             changed = false
@@ -278,60 +292,48 @@ class Board {
                 let pairs = this.getPair(x, y)
 
                 for (let pair of pairs) {
-                    if (pair.length > 1) {
-                        let playable = pair.map(([x, y]) => this.isLegal(x,y))
-                        
-                        let index = playable.onlyOne(true)
-                        if (index !== -1) {
-                            this.block(...pair[index])
-                            blocked.push(pair[index])
-                            changed = true
+                    if (pair.length > 1 && this.playGroup(pair, blocked, fails)) {
+                        changed = true
 
-                            return
-                        }
-
-                        if (playable.indexOf(true) === -1) {
-                            if (!fails.some((fail) => fail.x !== x || fail.y !== y)) {
-                                fails.push({
-                                    pair: pair,
-                                    fails: pair.map(([x, y]) => this.isLegal(x, y, true))
-                                })
-                            }
-                        }
+                        return
                     }
-                    if (pair.length > 2) {
+                    
+                    /*if (pair.length > 2) {
+                        let prevX = pair[0][0] - 1
+                        let prevY = pair[0][1] - 1
                         let group = []
+                        let groups = []
 
-                        if (pair[0][0] === pair[0][0]) {
-                            let p = pair[0][0]
-
-                            for (let [x, y] in pair) {
-                                if (p + 1 === y) {
-                                    group.push([x, y])
-                                } else {
-
-                                }
-
-                                p = y
+                        for (let [x, y] of pair) {
+                            if (x !== prevX + 1 && y !== prevY + 1) {
+                                groups.push(group)
+                                group = []
                             }
-                        } else {
-                            let p = pair[0][1]
 
-                            for (let [x, y] in pair) {
-                                if (p + 1 === x) {
-                                    group.push([x, y])
-                                }
+                            group.push([x, y])
 
-                                p = x
-                            }
+                            prevX = x
+                            prevY = y
                         }
-                    }
+
+                        groups.push(group)
+                        groups.sort( (group) => group.length )
+                        
+                        if (groups[0].length === 3) {
+                            block( ...groups[0][0] )
+                            block( ...groups[0][2] )
+                        }
+
+                        if (groups[0].length === 2) {
+                            block( ...groups[1][0] )
+                        }
+                    }*/
                 }
             })
         }
 
         for (let [x, y] of blocked) {
-            this.unblock(x, y)
+            //this.unblock(x, y)
         }
 
         return {
@@ -341,15 +343,29 @@ class Board {
         }
     }
 
-    checkGroup(group) {
+    playGroup(group, blocked, fails) {
         let playable = group.map(([x, y]) => this.isLegal(x,y))
         
         let playableIndex = playable.onlyOne(true)
-        let unplayable = playable.indexOf(true) !== -1
+        let unplayable = playable.indexOf(true) === -1
 
-        if (index !== -1) {
-            return 
+        if (playableIndex !== -1) {
+            this.block(...group[playableIndex])
+            blocked.push(group[playableIndex])
+
+            return true
         }
+
+        if (unplayable) {
+            //if (!fails.some((fail) => fail.x !== x || fail.y !== y)) {
+                fails.push({
+                    pair: group[0],
+                    fails: group.map(([x, y]) => this.isLegal(x, y, true))
+                })
+            //}
+        }
+
+        return false
     }
 
     isAlone(x, y) {

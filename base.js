@@ -48,6 +48,12 @@ Object.defineProperty(Array.prototype, 'onlyOne', {
     }
 })
 
+Object.defineProperty(Array.prototype, 'equal', {
+    value: function(arr) {
+        return this.length == arr.length && this.every( (e, i) => arr[i] == e )
+    }
+})
+
 // extend URLSearchParams
 
 Object.defineProperty(URLSearchParams.prototype, "getInt", {
