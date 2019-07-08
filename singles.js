@@ -75,10 +75,22 @@ class Board {
         }
 
         if (this.feedback === 2) { // plasuble lie
-            let pairs = tips.fails[0].pair
-            let number = this.getValue(...pairs[0])
-            let direction = pairs[0][0] === pairs[0][1] ? "row" : "column"
-            let over = direction === "row" ? pairs[0][1] : pairs[0][0] + 1
+            let dir = Math.randomInt(1)
+            
+            let x = Math.randomInt(4)
+            let y = Math.randomInt(4)
+
+            while ( this.getPair(x, y)[dir].length === 1 ) {
+                dir = Math.randomInt(1)
+            
+                x = Math.randomInt(4)
+                y = Math.randomInt(4)
+            }
+
+            let number = this.getValue(x, y)
+            let over = (dir === 0 ? y : x) + 1
+            let direction = ["row", "column"][dir]
+
             tip.innerHTML = `You will not be able to cover any of the ${number} in ${direction} ${over}.`
         }
 
@@ -88,7 +100,7 @@ class Board {
             let x = Math.randomInt(4)
             let y = Math.randomInt(4)
 
-            while ( this.getPair(x, y)[dir].length === 1 ) {
+            while ( this.getPair(x, y)[dir].length !== 1 ) {
                 dir = Math.randomInt(1)
             
                 x = Math.randomInt(4)
