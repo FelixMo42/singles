@@ -45,6 +45,10 @@ class Board {
                             display("winScreen")
                         }
 
+                        if (this.isLose()) {
+                            display("loseScreen")
+                        }
+
                         let tips = this.getTips()
                         if (!tips.winnable && !this.lost) {
                             this.badMove = [x, y]
@@ -329,8 +333,6 @@ class Board {
         for (let [x, y] of blocked) {
             this.unblock(x, y)
         }
-
-        console.log(fails)
 
         return {
             winnable: fails.length === 0,

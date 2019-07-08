@@ -29,11 +29,15 @@ Wanny:
 
 # Protocal
 
-
+Send out request for people to participate in the study on mturk (Amazon Mechanical Turk). Give participant the game along with the rules and assign them a random feedback type. When they are done with the game give them the servey. Recorde what moves they made, what feedback type they had and their responses to the servey.
 
 # The Game
+
+***Setup:** Generat a 5x5 grid of numbers (1-5) such that the goal is achivable by blacking out 8 or less numbers.
 
 **Goal:** black out number such that:
 * no number appears twice in any row or column.
 * no two black squares are adjacent.
 * the white squares form a single connected group (connections along diagonals do not count).
+
+**Losing:** you lose when their are no legal moves left.
