@@ -49,7 +49,6 @@ class Board {
 
     log(x, y, type, feedback="") {
         let data = {
-            table: "move",
             id: this.id,
             move: this.move,
             x: x, y: y,
@@ -59,13 +58,13 @@ class Board {
 
         console.debug(data)
 
-        /*
-        var xhr = new XMLHttpRequest()
-        xhr.open("POST", "example.com", true)
-        xhr.setRequestHeader('Content-Type', 'application/json')
+        if (false) {
+            var xhr = new XMLHttpRequest()
+            xhr.open("POST", "../saveMove", true)
+            xhr.setRequestHeader('Content-Type', 'application/json')
 
-        xhr.send(JSON.stringify(data))
-        */
+            xhr.send(JSON.stringify(data))
+        }
     }
 
     play(x, y) {
@@ -345,54 +344,9 @@ class Board {
             this.getTips_fails(nums, fails)
             this.getTips_play(nums, block)
 
-            /*numsLoop:
-            for (let [x, y] of nums) {
-                if (this.getValue(x, y) < 0) { continue }
-
-                let pairs = this.getPair(x, y)
-
-                for (let pair of pairs) {
-                    if (pair.length > 1 && this.playGroup(pair, block, fails)) {
-                        break numsLoop
-                    }
-
-                    if (pair.length > 2) {
-                        let prevX = pair[0][0] - 1
-                        let prevY = pair[0][1] - 1
-                        let group = []
-                        let groups = []
-
-                        for (let [x, y] of pair) {
-                            if (x !== prevX + 1 && y !== prevY + 1) {
-                                groups.push(group)
-                                group = []
-                            }
-                            group.push([x, y])
-                            prevX = x
-                            prevY = y
-                        }
-
-                        groups.push(group)
-                        groups.sort( (group) => group.length )
-                        
-                        if (groups[0].length === 3) {
-                            if (!block( ...groups[0][0] ) || !block( ...groups[0][2] )) {
-                                fails.push({
-                                    pair: pair
-                                })
-                            }
-                        }
-
-                        if (groups[0].length === 2) {
-                            if (!block( ...groups[1][0] )) {
-                                fails.push({
-                                    pair: pair
-                                })
-                            }
-                        }
-                    }
-                }
-            }*/
+            if (fails.length > 0) {
+                break
+            }
         }
 
         if (!params.has('debug')) {
@@ -412,16 +366,37 @@ class Board {
         for (let [x, y] of nums) {
             if (this.getValue(x, y) < 0) { continue }
             let pairs = this.getPair(x, y)
-
+            console.log(x, y)
             for (let pair of pairs) {
                 if (pair.length > 1) {
                     let playables = pair.map(([x, y]) => this.isLegal(x,y))
 
                     if ( playables.indexOf(true) === -1 ) {
+                        console.log("^ FAIL ^")
                         fails.push({
                             pair: pair,
                             fails: pair.map(([x, y]) => this.isLegal(x, y))
                         })
+                    }
+                }
+
+                if (pair.length > 2) {
+                    let groups = this.getGroups(pair)
+                    
+                    if (groups[0].length === 3) {
+                        if (!this.isLegal( ...groups[0][0] ) || this.isLegal( ...groups[0][2] )) {
+                            fails.push({
+                                pair: pair,
+                            })
+                        }
+                    }
+
+                    if (groups[0].length === 2) {
+                        if(!this.isLegal( ...groups[1][0] )) {
+                            fails.push({
+                                pair: pair
+                            })
+                        }
                     }
                 }
             }
@@ -444,35 +419,45 @@ class Board {
                 }
 
                 if (pair.length > 2) {
-                    let prevX = pair[0][0] - 1
-                    let prevY = pair[0][1] - 1
-                    let group = []
-                    let groups = []
-
-                    for (let [x, y] of pair) {
-                        if (x !== prevX + 1 && y !== prevY + 1) {
-                            groups.push(group)
-                            group = []
-                        }
-                        group.push([x, y])
-                        prevX = x
-                        prevY = y
-                    }
-
-                    groups.push(group)
-                    groups.sort( (group) => group.length )
+                    let groups = this.getGroups(pair)
                     
                     if (groups[0].length === 3) {
                         block( ...groups[0][0] )
                         block( ...groups[0][2] )
+
+                        return
                     }
 
                     if (groups[0].length === 2) {
                         block( ...groups[1][0] )
+
+                        return
                     }
                 }
             }
         }
+    }
+
+    getGroups(pair) {
+        let prevX = pair[0][0] - 1
+        let prevY = pair[0][1] - 1
+        let group = []
+        let groups = []
+
+        for (let [x, y] of pair) {
+            if (x !== prevX + 1 && y !== prevY + 1) {
+                groups.push(group)
+                group = []
+            }
+            group.push([x, y])
+            prevX = x
+            prevY = y
+        }
+
+        groups.push(group)
+        groups.sort( (group) => group.length )
+
+        return groups
     }
 
 
