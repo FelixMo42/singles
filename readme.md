@@ -19,7 +19,7 @@ Felix:
 
 **H3:** Participants will be equally likely to accept the explanation when it's simple as when it's complicated.
 
-Wanny:
+Wonny:
 
 **H1:** The participants will find the robot with a simple justification more “human” resulting in a trusting relationship between the robot and the participant (i.e. the participant will be more likely to believe and follow the instructions of the robot.)
 
@@ -29,11 +29,11 @@ Wanny:
 
 # Protocal
 
-Send out request for people to participate in the study on mturk (Amazon Mechanical Turk). Give participant the game along with the rules and assign them a random feedback type. When they are done with the game give them the servey. Recorde what moves they made, what feedback type they had and their responses to the servey.
+Send out request for people to participate in the study on mturk (Amazon Mechanical Turk). Give participant the game along with the rules and assign them a random feedback type. When they are done with the game give them the servey. Recorde what moves they made, what feedback type they had, weather they acepted the feedback and their responses to the survey.
 
 # The Game
 
-***Setup:** Generat a 5x5 grid of numbers (1-5) such that the goal is achivable by blacking out 8 or less numbers.
+**Setup:** Generat a 5x5 grid of numbers (1-5) such that the goal is achivable by blacking out 8 or less numbers.
 
 **Goal:** black out number such that:
 * no number appears twice in any row or column.

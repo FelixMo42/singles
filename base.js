@@ -61,7 +61,6 @@ Object.defineProperty(Array.prototype, 'dist', {
     }
 })
 
-
 // extend URLSearchParams
 
 Object.defineProperty(URLSearchParams.prototype, "getInt", {

@@ -5,6 +5,7 @@ class Board {
         this.id = id
         this.width = width
         this.height = height
+        this.move = 0
         this.feedback = Math.randomInt(3)
 
         this.setUpGrid()
@@ -14,11 +15,15 @@ class Board {
         document.getElementById("helpScreen_keep").addEventListener("click", () => {
             closeDisplay()
             this.lost = true
+
+            this.log(...this.badMove, "advice_rejected", this.getFeedback())
         })
 
         document.getElementById("helpScreen_back").addEventListener("click", () => {
             closeDisplay()
             this.unblock( ...this.badMove )
+
+            this.log(...this.badMove, "advice_accepted", this.getFeedback())
         })
 
         for (let y = 0; y < height; y++) {
@@ -42,12 +47,36 @@ class Board {
         }
     }
 
+    log(x, y, type, feedback="") {
+        let data = {
+            table: "move",
+            id: this.id,
+            move: this.move,
+            x: x, y: y,
+            type: type,
+            feedback: feedback
+        }
+
+        console.debug(data)
+
+        /*
+        var xhr = new XMLHttpRequest()
+        xhr.open("POST", "example.com", true)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+
+        xhr.send(JSON.stringify(data))
+        */
+    }
+
     play(x, y) {
         if (this.isLegal(x, y)) {
+            this.move += 1
             this.block(x, y)
 
             if (this.isWin()) {
                 display("winScreen")
+
+                this.log(x, y, "win")
 
                 return
             }
@@ -66,8 +95,12 @@ class Board {
             if (this.isLose()) {
                 display("loseScreen")
 
+                this.log(x, y, "lose")
+
                 return
             }
+
+            this.log(x, y, "good")
         }
     }
 
@@ -129,6 +162,10 @@ class Board {
         }
 
         return tip.innerHTML
+    }
+
+    getFeedback() {
+        return document.getElementById("helpScreen_desciption").innerHTML
     }
 
     setUpGrid() {
@@ -281,6 +318,16 @@ class Board {
         let fails = []
         let blocked = []
 
+        let block = (x, y) => {
+            if (!this.isLegal(x, y)) { return false }
+
+            this.block(x, y)
+            blocked.push([x, y])
+            changed = true
+
+            return true
+        }
+
         let nums = []
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
@@ -295,19 +342,57 @@ class Board {
         while (changed) {
             changed = false
 
-            outher:
+            this.getTips_fails(nums, fails)
+            this.getTips_play(nums, block)
+
+            /*numsLoop:
             for (let [x, y] of nums) {
                 if (this.getValue(x, y) < 0) { continue }
+
                 let pairs = this.getPair(x, y)
 
                 for (let pair of pairs) {
-                    if (pair.length > 1 && this.playGroup(pair, blocked, fails)) {
-                        changed = true
+                    if (pair.length > 1 && this.playGroup(pair, block, fails)) {
+                        break numsLoop
+                    }
 
-                        break outher
+                    if (pair.length > 2) {
+                        let prevX = pair[0][0] - 1
+                        let prevY = pair[0][1] - 1
+                        let group = []
+                        let groups = []
+
+                        for (let [x, y] of pair) {
+                            if (x !== prevX + 1 && y !== prevY + 1) {
+                                groups.push(group)
+                                group = []
+                            }
+                            group.push([x, y])
+                            prevX = x
+                            prevY = y
+                        }
+
+                        groups.push(group)
+                        groups.sort( (group) => group.length )
+                        
+                        if (groups[0].length === 3) {
+                            if (!block( ...groups[0][0] ) || !block( ...groups[0][2] )) {
+                                fails.push({
+                                    pair: pair
+                                })
+                            }
+                        }
+
+                        if (groups[0].length === 2) {
+                            if (!block( ...groups[1][0] )) {
+                                fails.push({
+                                    pair: pair
+                                })
+                            }
+                        }
                     }
                 }
-            }
+            }*/
         }
 
         if (!params.has('debug')) {
@@ -323,17 +408,83 @@ class Board {
         }
     }
 
-    playGroup(group, blocked, fails) {
+    getTips_fails(nums, fails) {
+        for (let [x, y] of nums) {
+            if (this.getValue(x, y) < 0) { continue }
+            let pairs = this.getPair(x, y)
+
+            for (let pair of pairs) {
+                if (pair.length > 1) {
+                    let playables = pair.map(([x, y]) => this.isLegal(x,y))
+
+                    if ( playables.indexOf(true) === -1 ) {
+                        fails.push({
+                            pair: pair,
+                            fails: pair.map(([x, y]) => this.isLegal(x, y))
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    getTips_play(nums, block) {
+        for (let [x, y] of nums) {
+            if (this.getValue(x, y) < 0) { continue }
+            let pairs = this.getPair(x, y)
+
+            for (let pair of pairs) {
+                if (pair.length > 1) {
+                    let playables = pair.map(([x, y]) => this.isLegal(x,y))
+                    let playableIndex = playables.onlyOne(true)
+                    
+                    if (playableIndex !== -1) {
+                        return block(...pair[playableIndex])
+                    }
+                }
+
+                if (pair.length > 2) {
+                    let prevX = pair[0][0] - 1
+                    let prevY = pair[0][1] - 1
+                    let group = []
+                    let groups = []
+
+                    for (let [x, y] of pair) {
+                        if (x !== prevX + 1 && y !== prevY + 1) {
+                            groups.push(group)
+                            group = []
+                        }
+                        group.push([x, y])
+                        prevX = x
+                        prevY = y
+                    }
+
+                    groups.push(group)
+                    groups.sort( (group) => group.length )
+                    
+                    if (groups[0].length === 3) {
+                        block( ...groups[0][0] )
+                        block( ...groups[0][2] )
+                    }
+
+                    if (groups[0].length === 2) {
+                        block( ...groups[1][0] )
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    playGroup(group, block, fails) {
         let playable = group.map(([x, y]) => this.isLegal(x,y))
         
         let playableIndex = playable.onlyOne(true)
         let unplayable = playable.indexOf(true) === -1
 
         if (playableIndex !== -1) {
-            this.block(...group[playableIndex])
-            blocked.push(group[playableIndex])
-
-            return true
+            block(...group[playableIndex])
         }
 
         if (unplayable) {
@@ -345,7 +496,7 @@ class Board {
             //}
         }
 
-        return false
+        return playableIndex !== -1
     }
 
     isAlone(x, y) {
@@ -413,7 +564,6 @@ class Board {
         return this.value[x][y]
     }
 }
-
 
 let params = new URLSearchParams(window.location.search)
 
