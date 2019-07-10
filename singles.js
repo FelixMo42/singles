@@ -58,12 +58,14 @@ class Board {
 
         console.debug(data)
 
-        if (false) {
+        try {
             var xhr = new XMLHttpRequest()
             xhr.open("POST", "../saveMove", true)
             xhr.setRequestHeader('Content-Type', 'application/json')
 
             xhr.send(JSON.stringify(data))
+        } catch {
+            print("Could not save move")
         }
     }
 
