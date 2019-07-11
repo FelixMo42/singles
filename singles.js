@@ -58,15 +58,11 @@ class Board {
 
         console.debug(data)
 
-        try {
-            var xhr = new XMLHttpRequest()
-            xhr.open("POST", "../saveMove", true)
-            xhr.setRequestHeader('Content-Type', 'application/json')
+        var xhr = new XMLHttpRequest()
+        xhr.open("POST", "../api/move", true)
+        xhr.setRequestHeader('Content-Type', 'application/json')
 
-            xhr.send(JSON.stringify(data))
-        } catch {
-            print("Could not save move")
-        }
+        xhr.send(JSON.stringify(data))
     }
 
     play(x, y) {
@@ -368,13 +364,11 @@ class Board {
         for (let [x, y] of nums) {
             if (this.getValue(x, y) < 0) { continue }
             let pairs = this.getPair(x, y)
-            console.log(x, y)
             for (let pair of pairs) {
                 if (pair.length > 1) {
                     let playables = pair.map(([x, y]) => this.isLegal(x,y))
 
                     if ( playables.indexOf(true) === -1 ) {
-                        console.log("^ FAIL ^")
                         fails.push({
                             pair: pair,
                             fails: pair.map(([x, y]) => this.isLegal(x, y))
