@@ -59,7 +59,7 @@ class Board {
         console.debug(data)
 
         var xhr = new XMLHttpRequest()
-        xhr.open("POST", "../api/move", true)
+        xhr.open("POST", "../api/moves", true)
         xhr.setRequestHeader('Content-Type', 'application/json')
 
         xhr.send(JSON.stringify(data))
